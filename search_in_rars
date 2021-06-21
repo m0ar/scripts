@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+export SEARCH_STRING=$1
+export TMP_DIR="search_tmp"
+
+function search {
+  unrar e -idq "$1" "$TMP_DIR" &&
+    rg -i "$SEARCH_STRING" "$TMP_DIR"
+  rm -rf "${TMP_DIR:?}"/*
+}
+# Export to make available for subshell
+export -f search
+
+mkdir -p "$TMP_DIR"
+
+find . -name '*.rar'\
+  -exec bash -c 'search "$1"' _ {} \;
+
+rmdir "$TMP_DIR"
